@@ -8,14 +8,31 @@
  *
  */
 
+// 검증 함수 가져오기
+const {
+    recommendValidatorRequest
+} = require('./recommend.validator')
+
+
 // 기본 준비 /recommend
 function postRecommend(req, res) {
-    res.json({
-        ok: true,
-        message: '추천 모듈 준비'
-    });
-}
+    try {
+        const result = recommendValidatorRequest(req.body);
 
+        res.json({
+            ok: true,
+            strategy: result.strategy,
+            message: '데이터 검증 확인',
+            received: result
+        });
+    } catch (err) {
+        res.json({
+            ok: false,
+            message: err.message,
+            errors: err.details || []
+        });
+    }
+}
 
 module.exports = {
     postRecommend
