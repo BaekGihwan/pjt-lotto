@@ -6,3 +6,12 @@
  * API 라우팅 정의만 담당
  *
  */
+
+const express = require('express');
+const router = express.Router();
+
+const recommendController = require('./recommend.controller');
+
+router.post('/', recommendController.postRecommend);
+
+module.exports = router;

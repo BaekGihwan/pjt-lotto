@@ -7,3 +7,16 @@
  * 비즈니스 로직은 직접 처리하지 않음
  *
  */
+
+// 기본 준비 /recommend
+function postRecommend(req, res) {
+    res.json({
+        ok: true,
+        message: '추천 모듈 준비'
+    });
+}
+
+
+module.exports = {
+    postRecommend
+};
