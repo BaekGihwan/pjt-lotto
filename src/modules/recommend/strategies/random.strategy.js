@@ -9,29 +9,43 @@
 
 
 /**
- * 랜덤 추천 전략(step 1-1)
+ * 랜덤 추천 전략(step 1-2)
  *
  * 규칙
+ * - fixedNumbers는 반드시 포함
  * - 1~45 중 중복 없이 6개 생성
  * - 결과는 오름차순 정렬
  */
 
-const {shuffleArray} = require('../../../common/utils');
+const {
+    shuffleArray,
+    uniqArray
+} = require('../../../common/utils');
 
 const LOTTO_MIN = 1;
 const LOTTO_MAX = 45;
 const LOTTO_SIZE = 6;
 
-function randomStrategy() {
-    const numbers = [];
-    for (let i = LOTTO_MIN; i <= LOTTO_MAX; i++) {
-        numbers.push(i);
+function randomStrategy(fixedNumbers = []) {
+    const fixedArr = uniqArray(fixedNumbers);
+
+    if (fixedArr.length > LOTTO_SIZE) {
+        throw new Error("fixedNumbers는 최대 6개 까지 가능 합니다.");
     }
 
-    // 1~45 numbers에서 중복 없이 6개를 랜덤으로 선택해 오름차순 정렬
-    return shuffleArray(numbers)
-        .slice(0, LOTTO_SIZE)
-        .sort((a, b) => a - b);
+    const numbers = [];
+
+    for (let i = LOTTO_MIN; i <= LOTTO_MAX; i++) {
+        if (!fixedArr.includes(i)) {
+            numbers.push(i);
+        }
+    }
+
+    const needNumbersCount = LOTTO_SIZE - fixedArr.length;
+
+    const randomPicked = shuffleArray(numbers).slice(0, needNumbersCount);
+
+    return [...fixedArr, ...randomPicked].sort((a, b) => a - b);
 }
 
 module.exports = {
