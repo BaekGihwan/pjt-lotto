@@ -51,6 +51,10 @@ lotto/
 ├─ package-lock.json
 ├─ .gitignore
 ├─ .env            # 환경 변수 (gitignore)
+├─ sql/
+│  ├─ query/       # 쿼리문
+│  ├─ schema/      # 테이블 DDL
+│  └─ seed/        # DML 테스트 데이터
 ├─ src/
 │  ├─ common/      # 공통 유틸리티
 │  ├─ config/      # 환경 / DB 설정
