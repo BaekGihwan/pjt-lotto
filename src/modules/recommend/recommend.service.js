@@ -8,18 +8,7 @@
  *
  */
 
-/**
- * 랜덤 추천 전략(step 1-4)
- *
- * 규칙
- * - fixedNumbers는 반드시 포함
- * - excludeNumbers는 반드시 제거
- * - count 만큼 티켓 생성
- * - 1~45 중 중복 없이 6개 생성
- * - 결과는 오름차순 정렬
- */
-
-const {randomStrategy} = require('./strategies/random.strategy');
+const { STRATEGY_MAP } = require('./strategies/index');
 
 function recommendService({
                               strategy = 'random',
@@ -28,16 +17,21 @@ function recommendService({
                               excludeNumbers = []
                           } = {}) {
 
+    const selectStrategy = STRATEGY_MAP[strategy];
+
     const ticketCount = Number.isInteger(count) ? count : parseInt(count, 10);
 
     const tickets = [];
     for (let i = 0; i < ticketCount; i++) {
-        tickets.push(randomStrategy(fixedNumbers, excludeNumbers));
+        tickets.push(
+            selectStrategy.execute(fixedNumbers, excludeNumbers)
+        );
     }
 
     return {
         ok: true,
         strategy,
+        count,
         tickets
     };
 }
