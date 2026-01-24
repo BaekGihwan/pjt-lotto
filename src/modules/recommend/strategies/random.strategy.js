@@ -31,16 +31,6 @@ function randomStrategy(fixedNumbers = [], excludeNumbers = []) {
     const fixedArr = uniqArray(fixedNumbers);
     const excludeArr = uniqArray(excludeNumbers);
 
-    if (fixedArr.length > LOTTO_SIZE) {
-        throw new Error("fixedNumbers는 최대 6개 까지 가능 합니다.");
-    }
-
-    for (const n of fixedArr) {
-        if (excludeArr.includes(n)) {
-            throw new Error('fixedNumbers와 excludeNumbers는 중복될 수 없습니다.');
-        }
-    }
-
     const numbers = [];
 
     for (let i = LOTTO_MIN; i <= LOTTO_MAX; i++) {
@@ -49,6 +39,10 @@ function randomStrategy(fixedNumbers = [], excludeNumbers = []) {
     }
 
     const needNumbersCount = LOTTO_SIZE - fixedArr.length;
+
+    if (numbers.length < needNumbersCount) {
+        throw new Error('로또 번호 조합을 생성할 수 없습니다.');
+    }
 
     const randomPicked = shuffleArray(numbers).slice(0, needNumbersCount);
 

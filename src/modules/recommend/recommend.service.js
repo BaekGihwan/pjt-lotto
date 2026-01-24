@@ -28,14 +28,7 @@ function recommendService({
                               excludeNumbers = []
                           } = {}) {
 
-    if (strategy !== 'random') {
-        throw new Error(`지원하지 않는 strategy 입니다: ${strategy}`);
-    }
-
     const ticketCount = Number.isInteger(count) ? count : parseInt(count, 10);
-    if (!Number.isInteger(ticketCount) || ticketCount < 1) {
-        throw new Error('count는 1 이상의 정수여야 합니다.');
-    }
 
     const tickets = [];
     for (let i = 0; i < ticketCount; i++) {
