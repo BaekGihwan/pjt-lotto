@@ -12,6 +12,11 @@ const {
     uniqArray, isEmpty, toInt
 } = require('../../common/utils')
 
+const {
+    getStrategyNames,
+    hasStrategy
+} = require('./strategies/index');
+
 // 데이터 검증하는 함수
 function recommendValidatorRequest(body = {}) {
     const errors = [];
@@ -25,8 +30,8 @@ function recommendValidatorRequest(body = {}) {
     // strategy 검증 -> 어떤 전략으로 할것인지
     if (isEmpty(strategy)) {
         errors.push('strategy는 필수 값입니다.');
-    } else if (strategy !== 'random') {
-        errors.push('현재 지원하지 않습니다.');
+    } else if (!hasStrategy(strategy)) {
+        errors.push(`지원하지 않는 strategy 입니다. => ${strategy}`);
     }
 
     // count 검증 -> 로또가 몇개의 묶음을 추천 받을지
