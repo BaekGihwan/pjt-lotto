@@ -13,22 +13,28 @@ const {
     recommendValidatorRequest
 } = require('./recommend.validator')
 
+const {
+    recommendService
+} = require('./recommend.service')
+
 
 // 기본 준비 /recommend
 function postRecommend(req, res) {
     try {
-        const result = recommendValidatorRequest(req.body);
+        // 1. 요청 데이터에 관련하여 검증
+        const validResult = recommendValidatorRequest(req.body);
 
-        res.json({
-            ok: true,
-            strategy: result.strategy,
-            message: '데이터 검증 확인',
-            received: result
-        });
+        // 2. 검증된 데이터로 비즈니스로직
+        const result = recommendService(validResult);
+
+        // 3. 결과 반환
+        return  res.json(result);
+
     } catch (err) {
-        res.json({
+        return res.json({
             ok: false,
-            message: err.message,
+            message: err.message || '에러!!',
+            status: err.status || 400,
             errors: err.details || []
         });
     }
