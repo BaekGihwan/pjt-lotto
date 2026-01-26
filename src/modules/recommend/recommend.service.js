@@ -11,6 +11,7 @@
 const crypto = require('crypto');
 const { STRATEGY_MAP } = require('./strategies/index');
 const repository = require('./recommend.repository');
+const { formatDateTime } = require('../../common/utils');
 
 /**
  * 추천 번호 생성 및 저장
@@ -21,7 +22,7 @@ const repository = require('./recommend.repository');
  * @param {Array<number>} params.excludeNumbers - 제외 번호
  * @returns {Promise<object>} 추천 결과
  */
-async function recommendService({
+async function createRecommend({
     strategy = 'random',
     count = 1,
     fixedNumbers = [],
@@ -67,6 +68,48 @@ async function recommendService({
     };
 }
 
+/**
+ * 추천 이력 조회
+ * @param {string} recommendId - 추천 실행 ID (UUID)
+ * @returns {Promise<object>} 추천 이력 또는 null
+ */
+async function getRecommendById(recommendId) {
+    // 추천 실행 정보 조회
+    const recommendRecord = await repository.findRecommendById(recommendId);
+
+    if (!recommendRecord) {
+        return null;
+    }
+
+    // 추천 번호 조회
+    const numberRecords = await repository.findRecommendNumbers(recommendId);
+
+    // 번호를 티켓 형태로 변환 (set_no별 그룹핑)
+    const ticketsMap = {};
+    numberRecords.forEach(row => {
+        if (!ticketsMap[row.set_no]) {
+            ticketsMap[row.set_no] = [];
+        }
+        ticketsMap[row.set_no].push(row.number);
+    });
+
+    // set_no 순서대로 배열로 변환
+    const tickets = Object.keys(ticketsMap)
+        .sort((a, b) => a - b)
+        .map(setNo => ticketsMap[setNo]);
+
+    return {
+        ok: true,
+        recommendId: recommendRecord.recommend_id,
+        targetDrwNo: recommendRecord.target_drw_no,
+        algorithm: recommendRecord.algorithm,
+        params: recommendRecord.params_json,
+        createdDate: formatDateTime(recommendRecord.created_date),
+        tickets
+    };
+}
+
 module.exports = {
-    recommendService
+    createRecommend,
+    getRecommendById
 };

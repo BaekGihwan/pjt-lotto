@@ -14,18 +14,19 @@ const {
 } = require('./recommend.validator')
 
 const {
-    recommendService
+    createRecommend,
+    getRecommendById
 } = require('./recommend.service')
 
 
-// 기본 준비 /recommend
+// 추천 이력 저장 /recommend
 async function postRecommend(req, res) {
     try {
         // 1. 요청 데이터에 관련하여 검증
         const validResult = recommendValidatorRequest(req.body);
 
         // 2. 검증된 데이터로 비즈니스로직
-        const result = await recommendService(validResult);
+        const result = await createRecommend(validResult);
 
         // 3. 결과 반환
         return res.json(result);
@@ -40,6 +41,42 @@ async function postRecommend(req, res) {
     }
 }
 
+// 추천 이력 조회 GET /recommend/:id
+async function getRecommend(req, res) {
+    try {
+        const { id } = req.params;
+
+        // UUID 형식 간단 검증
+        if (!id || id.length < 36) {
+            return res.json({
+                ok: false,
+                message: '유효하지 않은 추천 ID입니다.',
+                status: 400
+            });
+        }
+
+        const result = await getRecommendById(id);
+
+        if (!result) {
+            return res.json({
+                ok: false,
+                message: '해당 추천 이력을 찾을 수 없습니다.',
+                status: 404
+            });
+        }
+
+        return res.json(result);
+
+    } catch (err) {
+        return res.json({
+            ok: false,
+            message: err.message || '조회 중 에러 발생',
+            status: err.status || 500
+        });
+    }
+}
+
 module.exports = {
-    postRecommend
+    postRecommend,
+    getRecommend
 };
