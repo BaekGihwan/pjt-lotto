@@ -19,16 +19,16 @@ const {
 
 
 // 기본 준비 /recommend
-function postRecommend(req, res) {
+async function postRecommend(req, res) {
     try {
         // 1. 요청 데이터에 관련하여 검증
         const validResult = recommendValidatorRequest(req.body);
 
         // 2. 검증된 데이터로 비즈니스로직
-        const result = recommendService(validResult);
+        const result = await recommendService(validResult);
 
         // 3. 결과 반환
-        return  res.json(result);
+        return res.json(result);
 
     } catch (err) {
         return res.json({
