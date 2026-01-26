@@ -13,6 +13,7 @@ const router = express.Router();
 const recommendController = require('./recommend.controller');
 
 router.post('/', recommendController.postRecommend);
+router.get('/', recommendController.getRecommendList);
 router.get('/:id', recommendController.getRecommend);
 
 module.exports = router;

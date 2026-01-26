@@ -103,9 +103,78 @@ async function findRecommendNumbers(recommendId) {
     return db.query(sql, [recommendId]);
 }
 
+/**
+ * 추천 목록 조회 (필터링 지원)
+ * @param {object} filters - 필터 조건
+ * @param {number} [filters.targetDrwNo] - 목표 회차
+ * @param {string} [filters.algorithm] - 알고리즘명
+ * @returns {Promise<Array>} 추천 목록
+ */
+async function findRecommendListByFilters({targetDrwNo, algorithm} = {}) {
+    const filters = [];
+    const params = [];
+
+    if (targetDrwNo) {
+        filters.push('target_drw_no = ?');
+        params.push(targetDrwNo);
+    }
+
+    if (algorithm) {
+        filters.push('algorithm = ?');
+        params.push(algorithm);
+    }
+
+    const whereClause = filters.length > 0
+        ? `WHERE ${filters.join(' AND ')}`
+        : '';
+
+    const sql = `
+        SELECT recommend_id, target_drw_no, algorithm, params_json, created_date
+        FROM t_lotto_recommend_run
+        ${whereClause}
+        ORDER BY created_date DESC
+    `;
+
+    return db.query(sql, params);
+}
+
+/**
+ * 추천 총 개수 조회 (필터링 지원)
+ * @param {object} filters - 필터 조건
+ * @returns {Promise<number>} 총 개수
+ */
+async function countRecommendListByFilters({targetDrwNo, algorithm} = {}) {
+    const filters = [];
+    const params = [];
+
+    if (targetDrwNo) {
+        filters.push('target_drw_no = ?');
+        params.push(targetDrwNo);
+    }
+
+    if (algorithm) {
+        filters.push('algorithm = ?');
+        params.push(algorithm);
+    }
+
+    const whereClause = filters.length > 0
+        ? `WHERE ${filters.join(' AND ')}`
+        : '';
+
+    const sql = `
+        SELECT COUNT(*) as total
+        FROM t_lotto_recommend_run ${whereClause}
+    `;
+
+    const rows = await db.query(sql, params);
+    return rows[0].total;
+}
+
 module.exports = {
     insertRecommendRun,
     insertRecommendNumbers,
     findRecommendById,
     findRecommendNumbers,
+    findRecommendListByFilters,
+    countRecommendListByFilters,
 };

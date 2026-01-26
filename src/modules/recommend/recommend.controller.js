@@ -15,7 +15,8 @@ const {
 
 const {
     createRecommend,
-    getRecommendById
+    getRecommendById,
+    getRecommendListByFilters
 } = require('./recommend.service')
 
 
@@ -76,7 +77,29 @@ async function getRecommend(req, res) {
     }
 }
 
+// 추천 목록 조회 GET /recommend
+async function getRecommendList(req, res) {
+    try {
+        const { targetDrwNo, strategy } = req.query;
+
+        const result = await getRecommendListByFilters({
+            targetDrwNo: targetDrwNo ? parseInt(targetDrwNo, 10) : undefined,
+            algorithm: strategy || undefined
+        });
+
+        return res.json(result);
+
+    } catch (err) {
+        return res.json({
+            ok: false,
+            message: err.message || '목록 조회 중 에러 발생',
+            status: err.status || 500
+        });
+    }
+}
+
 module.exports = {
     postRecommend,
-    getRecommend
+    getRecommend,
+    getRecommendList
 };

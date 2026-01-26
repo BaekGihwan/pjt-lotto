@@ -109,7 +109,47 @@ async function getRecommendById(recommendId) {
     };
 }
 
+/**
+ * 추천 목록 조회
+ * @param {object} filters - 필터 조건
+ * @param {number} [filters.targetDrwNo] - 목표 회차
+ * @param {string} [filters.algorithm] - 알고리즘명 (strategy)
+ * @returns {Promise<object>} 추천 목록 및 페이지 정보
+ */
+async function getRecommendListByFilters({ targetDrwNo, algorithm} = {}) {
+
+    // 목록 조회
+    const records = await repository.findRecommendListByFilters({
+        targetDrwNo,
+        algorithm
+    });
+
+    // 총 개수 조회
+    const total = await repository.countRecommendListByFilters({
+        targetDrwNo,
+        algorithm
+    });
+
+    // 응답 데이터 변환
+    const items = records.map(record => ({
+        recommendId: record.recommend_id,
+        targetDrwNo: record.target_drw_no,
+        algorithm: record.algorithm,
+        params: record.params_json,
+        createdDate: formatDateTime(record.created_date)
+    }));
+
+    return {
+        ok: true,
+        items,
+        pagination: {
+            total
+        }
+    };
+}
+
 module.exports = {
     createRecommend,
-    getRecommendById
+    getRecommendById,
+    getRecommendListByFilters
 };
