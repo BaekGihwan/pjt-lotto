@@ -12,7 +12,8 @@ const router = express.Router();
 
 const drawController = require('./draw.controller');
 
-router.get('/latest', drawController.getLatest);
+router.post('/sync/:drwNo', drawController.syncDraw);
 router.get('/:drwNo', drawController.getByDrwNo);
+router.get('/latest', drawController.getLatest);
 
 module.exports = router;

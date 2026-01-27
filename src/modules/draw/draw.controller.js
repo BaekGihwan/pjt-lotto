@@ -10,8 +10,34 @@
 
 const {
     getLatestDraw,
-    getDrawByNo
+    getDrawByNo,
+    syncDrawFromAPI
 } = require('./draw.service');
+
+// 회차 동기화 POST /draw/sync/:drwNo
+async function syncDraw(req, res) {
+    try {
+        const { drwNo } = req.params;
+
+        if (!drwNo || isNaN(drwNo)) {
+            return res.json({
+                result: false,
+                message: '유효하지 않은 회차 번호입니다.',
+                status: 400
+            });
+        }
+
+        const result = await syncDrawFromAPI(parseInt(drwNo, 10));
+        return res.json(result);
+
+    } catch (err) {
+        return res.json({
+            result: false,
+            message: err.message || '동기화 중 에러 발생',
+            status: err.status || 500
+        });
+    }
+}
 
 // 최신 회차 조회 GET /draw/latest
 async function getLatest(req, res) {
@@ -71,7 +97,10 @@ async function getByDrwNo(req, res) {
     }
 }
 
+
+
 module.exports = {
+    syncDraw,
     getLatest,
     getByDrwNo
 };

@@ -9,7 +9,35 @@
  */
 
 const repository = require('./draw.repository');
+const lottoApiClient = require('../../external/lotto-api.client');
 const { formatDateTime } = require('../../common/utils');
+
+/**
+ * 동행복권 API에서 회차 정보 동기화
+ * @param {number} drwNo - 회차 번호
+ * @returns {Promise<object>} 동기화 결과
+ */
+async function syncDrawFromAPI(drwNo) {
+    // 1. 외부 API 호출
+    const apiData = await lottoApiClient.fetchDraw(drwNo);
+
+    // 2. 회차 정보 저장
+    await repository.insertDraw(apiData.drwNo, apiData.drwDate);
+
+    // 3. 당첨번호 저장
+    await repository.insertDrawNumbers(apiData.drwNo, apiData.numbers, apiData.bonusNo);
+
+    return {
+        result: true,
+        message: `${drwNo}회차 동기화 완료`,
+        data: {
+            drwNo: apiData.drwNo,
+            drwDate: apiData.drwDate,
+            numbers: apiData.numbers,
+            bonusNo: apiData.bonusNo
+        }
+    };
+}
 
 /**
  * 추천용 목표 회차 번호 조회
@@ -69,6 +97,7 @@ async function getDrawByNo(drwNo) {
 }
 
 module.exports = {
+    syncDrawFromAPI,
     getTargetDrwNo,
     getLatestDraw,
     getDrawByNo,
