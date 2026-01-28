@@ -14,89 +14,65 @@ const {
     syncDrawFromAPI
 } = require('./draw.service');
 
+const {
+    AppError,
+    errorCodes
+} = require('../../common/errors');
+
 // 회차 동기화 POST /draw/sync/:drwNo
-async function syncDraw(req, res) {
+async function syncDraw(req, res, next) {
     try {
-        const { drwNo } = req.params;
+        const {drwNo} = req.params;
 
         if (!drwNo || isNaN(drwNo)) {
-            return res.json({
-                result: false,
-                message: '유효하지 않은 회차 번호입니다.',
-                status: 400
-            });
+            throw new AppError(errorCodes.DRAW_INVALID_DRW_NO);
         }
 
         const result = await syncDrawFromAPI(parseInt(drwNo, 10));
         return res.json(result);
 
     } catch (err) {
-        return res.json({
-            result: false,
-            message: err.message || '동기화 중 에러 발생',
-            status: err.status || 500
-        });
+        next(err instanceof AppError ? err : new AppError(errorCodes.DRAW_SYNC_FAILED, err.message));
     }
 }
 
 // 최신 회차 조회 GET /draw/latest
-async function getLatest(req, res) {
+async function getLatest(req, res, next) {
     try {
         const result = await getLatestDraw();
 
         if (!result) {
-            return res.json({
-                result: false,
-                message: '등록된 회차 정보가 없습니다.',
-                status: 404
-            });
+            throw new AppError(errorCodes.DRAW_NO_DATA);
         }
 
         return res.json(result);
 
     } catch (err) {
-        return res.json({
-            result: false,
-            message: err.message || '회차 조회 중 에러 발생',
-            status: err.status || 500
-        });
+        next(err instanceof AppError ? err : new AppError(errorCodes.INTERNAL_ERROR, err.message));
     }
 }
 
 // 특정 회차 조회 GET /draw/:drwNo
-async function getByDrwNo(req, res) {
+async function getByDrwNo(req, res, next) {
     try {
         const {drwNo} = req.params;
 
         if (!drwNo || isNaN(drwNo)) {
-            return res.json({
-                result: false,
-                message: '유효하지 않은 회차 번호입니다.',
-                status: 400
-            });
+            throw new AppError(errorCodes.DRAW_INVALID_DRW_NO);
         }
 
         const result = await getDrawByNo(parseInt(drwNo, 10));
 
         if (!result) {
-            return res.json({
-                result: false,
-                message: '해당 회차 정보를 찾을 수 없습니다.',
-                status: 404
-            });
+            throw new AppError(errorCodes.DRAW_NOT_FOUND, `${drwNo}회`);
         }
 
         return res.json(result);
 
     } catch (err) {
-        return res.json({
-            result: false,
-            message: err.message || '회차 조회 중 에러 발생',
-            status: err.status || 500
-        });
+        next(err instanceof AppError ? err : new AppError(errorCodes.INTERNAL_ERROR, err.message));
     }
 }
-
 
 
 module.exports = {

@@ -8,20 +8,24 @@
  *
  */
 
-// 검증 함수 가져오기
 const {
     recommendValidatorRequest
-} = require('./recommend.validator')
+} = require('./recommend.validator');
 
 const {
     createRecommend,
     getRecommendById,
     getRecommendListByFilters
-} = require('./recommend.service')
+} = require('./recommend.service');
+
+const {
+    AppError,
+    errorCodes
+} = require('../../common/errors');
 
 
 // 추천 이력 저장 /recommend
-async function postRecommend(req, res) {
+async function postRecommend(req, res, next) {
     try {
         // 1. 요청 데이터에 관련하여 검증
         const validResult = recommendValidatorRequest(req.body);
@@ -33,54 +37,46 @@ async function postRecommend(req, res) {
         return res.json(result);
 
     } catch (err) {
-        return res.json({
-            result: false,
-            message: err.message || '에러!!',
-            status: err.status || 400,
-            errors: err.details || []
-        });
+        // validator에서 던진 에러는 details 포함
+        if (err.details) {
+            return res.status(400).json({
+                result: false,
+                code: errorCodes.INVALID_PARAM.code,
+                message: err.message,
+                errors: err.details
+            });
+        }
+        next(err instanceof AppError ? err : new AppError(errorCodes.RECOMMEND_GENERATION_FAILED, err.message));
     }
 }
 
 // 추천 이력 조회 GET /recommend/:id
-async function getRecommend(req, res) {
+async function getRecommend(req, res, next) {
     try {
-        const { id } = req.params;
+        const {id} = req.params;
 
         // UUID 형식 간단 검증
         if (!id || id.length < 36) {
-            return res.json({
-                result: false,
-                message: '유효하지 않은 추천 ID입니다.',
-                status: 400
-            });
+            throw new AppError(errorCodes.INVALID_PARAM, '유효하지 않은 추천 ID');
         }
 
         const result = await getRecommendById(id);
 
         if (!result) {
-            return res.json({
-                result: false,
-                message: '해당 추천 이력을 찾을 수 없습니다.',
-                status: 404
-            });
+            throw new AppError(errorCodes.RECOMMEND_NOT_FOUND, id);
         }
 
         return res.json(result);
 
     } catch (err) {
-        return res.json({
-            result: false,
-            message: err.message || '조회 중 에러 발생',
-            status: err.status || 500
-        });
+        next(err instanceof AppError ? err : new AppError(errorCodes.INTERNAL_ERROR, err.message));
     }
 }
 
 // 추천 목록 조회 GET /recommend
-async function getRecommendList(req, res) {
+async function getRecommendList(req, res, next) {
     try {
-        const { targetDrwNo, strategy } = req.query;
+        const {targetDrwNo, strategy} = req.query;
 
         const result = await getRecommendListByFilters({
             targetDrwNo: targetDrwNo ? parseInt(targetDrwNo, 10) : undefined,
@@ -90,11 +86,7 @@ async function getRecommendList(req, res) {
         return res.json(result);
 
     } catch (err) {
-        return res.json({
-            result: false,
-            message: err.message || '목록 조회 중 에러 발생',
-            status: err.status || 500
-        });
+        next(err instanceof AppError ? err : new AppError(errorCodes.INTERNAL_ERROR, err.message));
     }
 }
 
