@@ -8,6 +8,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var recommendRoutes = require('./src/modules/recommend/recommend.routes')
 var drawRoutes = require('./src/modules/draw/draw.routes')
+var scheduler = require('./src/scheduler')
 
 var app = express();
 
@@ -41,5 +42,8 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+// 스케줄러 시작
+scheduler.startAll();
 
 module.exports = app;

@@ -1,20 +1,21 @@
 /**
  * Lotto API Client
  *
- * 동행복권 외부 API 호출을 담당
- * https://www.dhlottery.co.kr 에서 당첨 정보 조회
+ * 동행복권 메인 API에서 당첨 정보 조회
+ * https://www.dhlottery.co.kr/selectMainInfo.do
  *
  */
 
 /**
  * 특정 회차 당첨 정보 조회
- * @param {number} drwNo - 회차 번호
+ * @param {number} drwNo - 요청 회차 번호
  * @returns {Promise<object>} 당첨 정보
  */
 async function fetchDraw(drwNo) {
-    const url = `https://www.dhlottery.co.kr/common.do?method=getLottoNumber&drwNo=${drwNo}`;
+    const url = 'https://www.dhlottery.co.kr/selectMainInfo.do';
 
     const response = await fetch(url, {
+        method: 'GET',
         headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
             'Accept': 'application/json'
@@ -29,24 +30,42 @@ async function fetchDraw(drwNo) {
 
     const data = await response.json();
 
-    if (data.returnValue !== 'success') {
-        const error = new Error(`회차 정보 없음: ${drwNo}회`);
+    // 로또645 데이터 추출
+    const lt645List = data?.data?.result?.pstLtEpstInfo?.lt645;
+
+    if (!lt645List || lt645List.length === 0) {
+        const error = new Error('로또 당첨정보를 찾을 수 없습니다.');
+        error.status = 500;
+        throw error;
+    }
+
+    // 요청한 회차 찾기
+    const drawData = lt645List.find(item => item.ltEpsd === drwNo);
+
+    if (!drawData) {
+        // 최신 회차 번호 확인
+        const latestDrwNo = Math.max(...lt645List.map(item => item.ltEpsd));
+        const error = new Error(`회차 정보 없음: ${drwNo}회 (최신: ${latestDrwNo}회)`);
         error.status = 404;
         throw error;
     }
 
+    // 날짜 형식 변환 (YYYYMMDD → YYYY-MM-DD)
+    const rawDate = drawData.ltRflYmd;
+    const drwDate = `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`;
+
     return {
-        drwNo: data.drwNo,
-        drwDate: data.drwNoDate,
+        drwNo: drawData.ltEpsd,
+        drwDate,
         numbers: [
-            data.drwtNo1,
-            data.drwtNo2,
-            data.drwtNo3,
-            data.drwtNo4,
-            data.drwtNo5,
-            data.drwtNo6
+            drawData.tm1WnNo,
+            drawData.tm2WnNo,
+            drawData.tm3WnNo,
+            drawData.tm4WnNo,
+            drawData.tm5WnNo,
+            drawData.tm6WnNo
         ],
-        bonusNo: data.bnusNo
+        bonusNo: drawData.bnsWnNo
     };
 }
 
