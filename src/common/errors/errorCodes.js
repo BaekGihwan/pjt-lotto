@@ -85,4 +85,24 @@ module.exports = {
     // ================================
     // Purchase 모듈 (4XXX)
     // ================================
+    PURCHASE_INVALID_NUMBERS: {
+        code: 4001,
+        status: 400,
+        message: '유효하지 않은 번호입니다.'
+    },
+    PURCHASE_INVALID_SOURCE_TYPE: {
+        code: 4002,
+        status: 404,
+        message: '유효하지 않은 구매 유형입니다.'
+    },
+    PURCHASE_NOT_FOUND: {
+        code: 4003,
+        status: 404,
+        message: '구매 정보를 찾을 수 없습니다.'
+    },
+    PURCHASE_TIME_NOT_ALLOWED: {
+        code: 4004,
+        status: 400,
+        message: '구매 가능 시간이 아닙니다.'
+    },
 };

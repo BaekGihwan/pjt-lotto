@@ -9,6 +9,7 @@ var usersRouter = require('./routes/users');
 var recommendRoutes = require('./src/modules/recommend/recommend.routes')
 var drawRoutes = require('./src/modules/draw/draw.routes')
 var scheduler = require('./src/scheduler')
+var { AppError } = require('./src/common/errors')
 
 var app = express();
 
@@ -32,13 +33,25 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 
-// error handler
+// API error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
+  // AppError인 경우 JSON 응답
+  if (err instanceof AppError) {
+    return res.status(err.status).json(err.toJSON());
+  }
+
+  // API 요청인 경우 JSON 에러 응답
+  if (req.path.startsWith('/recommend') || req.path.startsWith('/draw')) {
+    return res.status(err.status || 500).json({
+      result: false,
+      code: err.code || 1003,
+      message: err.message || '서버 내부 오류가 발생했습니다.'
+    });
+  }
+
+  // 그 외 (view 렌더링)
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'dev' ? err : {};
-
-  // render the error page
   res.status(err.status || 500);
   res.render('error');
 });
