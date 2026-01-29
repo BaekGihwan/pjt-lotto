@@ -28,6 +28,11 @@ module.exports = {
         status: 500,
         message: '서버 내부 오류가 발생했습니다.'
     },
+    INVALID_TICKET_FORMAT: {
+        code: 1004,
+        status: 400,
+        message: 'tickets는 6개의 번호로 구성된 배열이어야 합니다.'
+    },
 
     // ================================
     // Draw 모듈 (2XXX)
