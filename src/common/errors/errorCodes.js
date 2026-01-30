@@ -93,11 +93,11 @@ module.exports = {
     PURCHASE_INVALID_NUMBERS: {
         code: 4001,
         status: 400,
-        message: '유효하지 않은 번호입니다.'
+        message: '유효하지 않은 번호입니다. (1~45 사이의 정수)'
     },
     PURCHASE_INVALID_SOURCE_TYPE: {
         code: 4002,
-        status: 404,
+        status: 400,
         message: '유효하지 않은 구매 유형입니다.'
     },
     PURCHASE_NOT_FOUND: {
@@ -109,5 +109,35 @@ module.exports = {
         code: 4004,
         status: 400,
         message: '구매 가능 시간이 아닙니다.'
+    },
+    PURCHASE_REQUIRED_SOURCE_TYPE: {
+        code: 4005,
+        status: 400,
+        message: 'sourceType은 필수 값입니다.'
+    },
+    PURCHASE_INVALID_TICKETS: {
+        code: 4006,
+        status: 400,
+        message: 'tickets는 1개 이상의 번호 배열이어야 합니다.'
+    },
+    PURCHASE_INVALID_TICKET_COUNT: {
+        code: 4007,
+        status: 400,
+        message: 'tickets는 최대 5개까지 가능합니다.'
+    },
+    PURCHASE_INVALID_TICKET_FORMAT: {
+        code: 4008,
+        status: 400,
+        message: '각 ticket은 중복 없는 6개의 번호 배열이어야 합니다.'
+    },
+    PURCHASE_INVALID_DRW_NO: {
+        code: 4009,
+        status: 400,
+        message: 'targetDrwNo는 1 이상의 정수여야 합니다.'
+    },
+    PURCHASE_INVALID_PURCHASE_AT: {
+        code: 4010,
+        status: 400,
+        message: 'purchaseAt은 유효한 날짜 형식이어야 합니다.'
     },
 };
