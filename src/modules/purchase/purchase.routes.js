@@ -6,3 +6,14 @@
  * API 라우팅 정의만 담당
  *
  */
+
+const express = require('express');
+const router = express.Router();
+
+const purchaseController = require('./purchase.controller');
+
+router.post('/', purchaseController.postPurchase);
+router.get('/', purchaseController.getPurchaseList);
+router.get('/:id', purchaseController.getPurchase);
+
+module.exports = router;

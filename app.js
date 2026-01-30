@@ -6,10 +6,11 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-var recommendRoutes = require('./src/modules/recommend/recommend.routes')
 var drawRoutes = require('./src/modules/draw/draw.routes')
+var purchaseRoutes = require('./src/modules/purchase/purchase.routes')
+var recommendRoutes = require('./src/modules/recommend/recommend.routes')
 var scheduler = require('./src/scheduler')
-var { AppError } = require('./src/common/errors')
+var {AppError} = require('./src/common/errors')
 
 var app = express();
 
@@ -19,29 +20,32 @@ app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/recommend', recommendRoutes);
 app.use('/draw', drawRoutes);
+app.use('/purchase', purchaseRoutes);
+app.use('/recommend', recommendRoutes);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // API error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // AppError인 경우 JSON 응답
   if (err instanceof AppError) {
     return res.status(err.status).json(err.toJSON());
   }
 
   // API 요청인 경우 JSON 에러 응답
-  if (req.path.startsWith('/recommend') || req.path.startsWith('/draw')) {
+  if (req.path.startsWith('/recommend') ||
+      req.path.startsWith('/draw') ||
+      req.path.startsWith('/purchase')) {
     return res.status(err.status || 500).json({
       result: false,
       code: err.code || 1003,
