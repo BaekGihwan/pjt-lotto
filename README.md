@@ -62,17 +62,23 @@ lotto/
 │     │  ├─ draw.controller.js
 │     │  ├─ draw.service.js
 │     │  └─ draw.repository.js
-│     └─ recommend/         # 추천 모듈
-│        ├─ recommend.routes.js
-│        ├─ recommend.controller.js
-│        ├─ recommend.service.js
-│        ├─ recommend.repository.js
-│        ├─ recommend.validator.js
-│        └─ strategies/
-│           ├─ index.js
-│           ├─ random.strategy.js
-│           ├─ evenOdd.strategy.js
-│           └─ sumRange.strategy.js
+│     ├─ recommend/         # 추천 모듈
+│     │  ├─ recommend.routes.js
+│     │  ├─ recommend.controller.js
+│     │  ├─ recommend.service.js
+│     │  ├─ recommend.repository.js
+│     │  ├─ recommend.validator.js
+│     │  └─ strategies/
+│     │     ├─ index.js
+│     │     ├─ random.strategy.js
+│     │     ├─ evenOdd.strategy.js
+│     │     └─ sumRange.strategy.js
+│     └─ purchase/          # 구매 모듈
+│        ├─ purchase.routes.js
+│        ├─ purchase.controller.js
+│        ├─ purchase.service.js
+│        ├─ purchase.validator.js
+│        └─ purchase.repository.js
 ├─ tests/                   # 테스트 스크립트
 ├─ views/                   # EJS 템플릿
 └─ public/                  # 정적 리소스
@@ -222,6 +228,10 @@ npm start
 | `t_lotto_draw_number` | 회차별 당첨 번호 |
 | `t_lotto_recommend_run` | 추천 실행 이력 |
 | `t_lotto_recommend_number` | 추천 번호 상세 |
+| `t_lotto_purchase` | 구매(가상) 메타 |
+| `t_lotto_purchase_number` | 구매 번호 상세 |
+| `t_lotto_purchase_result` | 구매 당첨 평가 결과 |
+| `t_lotto_recommend_result` | 추천 당첨 평가 결과 |
 
 ---
 
@@ -235,6 +245,6 @@ npm start
 - [x] Draw: 동행복권 API 연동
 - [x] Draw: 스케줄러 (자동 동기화)
 - [x] Draw: 엑셀 import 스크립트
-- [ ] 공통: 에러 코드 템플릿화
-- [ ] Purchase: 구매 모듈 (예정)
+- [x] 공통: 에러 코드 템플릿화
+- [ ] Purchase: 구매 모듈 (진행중)
 - [ ] 평가: 추천/구매 결과 평가 (예정)
