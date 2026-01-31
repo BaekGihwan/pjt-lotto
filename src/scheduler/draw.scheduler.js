@@ -14,10 +14,10 @@ const evaluateService = require('../modules/evaluate/evaluate.service');
 
 /**
  * 다음 동기화할 회차 번호 계산
- * @returns {Promise<number>} 다음 회차 번호
+ * @returns {Promise<number>} 다음 동기화 대상 회차 번호
  */
-async function getNextDrwNo() {
-    const latestDraw = await drawRepository.findLatestDraw();
+async function getNextSyncDrwNo() {
+    const latestDraw = await drawRepository.findLatestSyncedDraw();
 
     if (!latestDraw) {
         return 1;
@@ -34,7 +34,7 @@ async function syncLatestDraw() {
     console.log(`[${timestamp}] 회차 동기화 스케줄러 실행`);
 
     try {
-        const nextDrwNo = await getNextDrwNo();
+        const nextDrwNo = await getNextSyncDrwNo();
         console.log(`[${timestamp}] 동기화 대상 회차: ${nextDrwNo}`);
 
         const result = await drawService.syncDrawFromAPI(nextDrwNo);

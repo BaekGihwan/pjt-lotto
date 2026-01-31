@@ -103,10 +103,30 @@ async function findDrawNumbers(drwNo) {
     return db.query(sql, [drwNo]);
 }
 
+/**
+ * 당첨번호가 등록된 최신 회차 조회
+ * 선등록(FK용 껍데기)된 회차는 제외
+ * @returns {Promise<object|null>} 최신 동기화 완료 회차 정보
+ */
+async function findLatestSyncedDraw() {
+    const sql = `
+        SELECT d.drw_no, d.drw_date, d.created_date
+        FROM t_lotto_draw d
+        WHERE EXISTS (
+            SELECT 1 FROM t_lotto_draw_number dn WHERE dn.drw_no = d.drw_no
+        )
+        ORDER BY d.drw_no DESC
+        LIMIT 1
+    `;
+    const rows = await db.query(sql);
+    return rows.length > 0 ? rows[0] : null;
+}
+
 module.exports = {
     insertDraw,
     insertDrawNumbers,
     findLatestDraw,
+    findLatestSyncedDraw,
     findDrawByNo,
     findDrawNumbers,
 };
